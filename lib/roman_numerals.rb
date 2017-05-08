@@ -1,3 +1,5 @@
+require 'pry-byebug'
+
 class RomanNumerals
   attr_reader :symbols
 
@@ -7,14 +9,17 @@ class RomanNumerals
                     'D' => 500, 'M' => 1000
                     }
 
-  def initialize symbols
+  def initialize(symbols, rules: RomanNumeralsRules.new(symbols))
     @symbols = symbols
+    @rules =  rules
   end
 
-  def convert
+  def get_arabic_numeral
     match
-    subtract_numbers @match_numbers
-    sum_numbers
+    @valid = validate_symbols
+    subtract_numbers @match_numbers if @valid
+    sum_numbers if @valid
+    @valid ? @match_numbers : @match_numbers = 'Invalid numeral'
   end
 
 
@@ -39,10 +44,15 @@ class RomanNumerals
       sub_numbers index, next_index if values[next_index] > values[index]
     end
   end
-  
+
   private
   def sub_numbers actual_index, next_index
     @match_numbers = @match_numbers[next_index] - @match_numbers[actual_index]
+  end
+
+  private
+  def validate_symbols
+    @rules.validate_symbols_repeated
   end
 
 end
